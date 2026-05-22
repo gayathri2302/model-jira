@@ -1,10 +1,11 @@
 import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
 
 export default function AppLayout() {
   return (
     <div className="flex min-h-screen">
-      <aside className="w-60 bg-surface border-r border-border shrink-0" />
-      <main className="flex-1 overflow-auto">
+      <Sidebar />
+      <main className="flex-1 overflow-auto ml-60">
         <Outlet />
       </main>
     </div>
