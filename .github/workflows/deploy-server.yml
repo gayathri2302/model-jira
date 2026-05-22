@@ -1,0 +1,57 @@
+name: Deploy Server — Azure App Service
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'shared/**'
+      - '.github/workflows/deploy-server.yml'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        run: npm ci
+        working-directory: server
+
+      - name: Build server (TypeScript)
+        run: npm run build
+        working-directory: server
+
+      - name: Copy shared types into dist
+        run: |
+          mkdir -p server/dist-deploy
+          cp -r server/dist server/dist-deploy/dist
+          cp server/package.json server/dist-deploy/
+          cp server/package-lock.json server/dist-deploy/
+          mkdir -p server/dist-deploy/shared/types
+          cp shared/types/api.types.ts server/dist-deploy/shared/types/
+
+      - name: Install production dependencies
+        run: npm ci --omit=dev
+        working-directory: server/dist-deploy
+
+      - name: Zip artifact for deployment
+        run: |
+          cd server/dist-deploy
+          zip -r ../../server-deploy.zip .
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: server-deploy.zip
