@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--color-text-primary);
+  background: var(--color-surface-raised);
+}
+
+#root {
+  min-height: 100vh;
+}
