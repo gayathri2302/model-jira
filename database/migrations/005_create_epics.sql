@@ -1,9 +1,9 @@
 -- up
-IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'epics')
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'mj_epics')
 BEGIN
-  CREATE TABLE epics (
+  CREATE TABLE mj_epics (
     id          UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-    project_id  UNIQUEIDENTIFIER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    project_id  UNIQUEIDENTIFIER NOT NULL REFERENCES mj_projects(id) ON DELETE CASCADE,
     title       NVARCHAR(255)    NOT NULL,
     description NVARCHAR(MAX)    NULL,
     color       NVARCHAR(7)      NOT NULL DEFAULT '#0052CC',
@@ -16,4 +16,4 @@ BEGIN
 END;
 
 -- down
--- DROP TABLE IF EXISTS epics;
+-- DROP TABLE IF EXISTS mj_epics;

@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+config({ path: resolve(__dirname, '../.env') });
 import './config/env.config';
 import app from './app';
 import { getPool, closePool } from './config/db.config';

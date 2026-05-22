@@ -9,8 +9,8 @@ export async function listActivity(ticketId: string): Promise<ActivityDto[]> {
     .query<ActivityDto>(`
       SELECT a.id, a.ticket_id, a.user_id, u.name AS user_name,
              a.action, a.field_name, a.old_value, a.new_value, a.created_at
-      FROM activity_history a
-      JOIN users u ON u.id = a.user_id
+      FROM mj_activity_history a
+      JOIN mj_users u ON u.id = a.user_id
       WHERE a.ticket_id = @ticketId
       ORDER BY a.created_at DESC
     `);
@@ -35,7 +35,7 @@ export async function logActivity(data: {
     .input('oldValue', sql.NVarChar, data.oldValue ?? null)
     .input('newValue', sql.NVarChar, data.newValue ?? null)
     .query(`
-      INSERT INTO activity_history (ticket_id, user_id, action, field_name, old_value, new_value)
+      INSERT INTO mj_activity_history (ticket_id, user_id, action, field_name, old_value, new_value)
       VALUES (@ticketId, @userId, @action, @fieldName, @oldValue, @newValue)
     `);
 }

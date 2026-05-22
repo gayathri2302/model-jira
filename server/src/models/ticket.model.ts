@@ -9,11 +9,11 @@ const TICKET_SELECT = `
     t.assignee_id, a.name AS assignee_name,
     t.reporter_id, r.name AS reporter_name,
     t.story_points, t.due_date, t.created_at, t.updated_at
-  FROM tickets t
+  FROM mj_tickets t
   JOIN statuses s ON s.id = t.status_id
   LEFT JOIN epics e ON e.id = t.epic_id
-  LEFT JOIN users a ON a.id = t.assignee_id
-  JOIN users r ON r.id = t.reporter_id
+  LEFT JOIN mj_users a ON a.id = t.assignee_id
+  JOIN mj_users r ON r.id = t.reporter_id
 `;
 
 export async function listTicketsByProject(projectId: string): Promise<TicketDto[]> {
@@ -43,7 +43,7 @@ export async function getNextTicketNumber(projectKey: string): Promise<string> {
     .request()
     .input('prefix', sql.NVarChar, `${projectKey}-%`)
     .query<{ cnt: number }>(`
-      SELECT COUNT(*) AS cnt FROM tickets
+      SELECT COUNT(*) AS cnt FROM mj_tickets
       WHERE ticket_number LIKE @prefix
     `);
   const seq = (res.recordset[0].cnt ?? 0) + 101;
@@ -80,7 +80,7 @@ export async function createTicket(data: {
     .input('storyPoints', sql.Int, data.storyPoints)
     .input('dueDate', sql.Date, data.dueDate)
     .query<{ id: string }>(`
-      INSERT INTO tickets (
+      INSERT INTO mj_tickets (
         ticket_number, project_id, title, description, type, priority,
         status_id, epic_id, assignee_id, reporter_id, story_points, due_date
       )
@@ -148,7 +148,7 @@ export async function updateTicket(
     setClauses.push('due_date = @dueDate');
   }
 
-  await req.query(`UPDATE tickets SET ${setClauses.join(', ')} WHERE id = @id`);
+  await req.query(`UPDATE mj_tickets SET ${setClauses.join(', ')} WHERE id = @id`);
   return findTicketById(id);
 }
 
@@ -157,5 +157,5 @@ export async function softDeleteTicket(id: string): Promise<void> {
   await pool
     .request()
     .input('id', sql.UniqueIdentifier, id)
-    .query('UPDATE tickets SET deleted_at = GETUTCDATE() WHERE id = @id');
+    .query('UPDATE mj_tickets SET deleted_at = GETUTCDATE() WHERE id = @id');
 }

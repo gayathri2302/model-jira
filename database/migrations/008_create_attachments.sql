@@ -1,10 +1,10 @@
 -- up
-IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'attachments')
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'mj_attachments')
 BEGIN
-  CREATE TABLE attachments (
+  CREATE TABLE mj_attachments (
     id             UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-    ticket_id      UNIQUEIDENTIFIER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    uploaded_by_id UNIQUEIDENTIFIER NOT NULL REFERENCES users(id),
+    ticket_id      UNIQUEIDENTIFIER NOT NULL REFERENCES mj_tickets(id) ON DELETE CASCADE,
+    uploaded_by_id UNIQUEIDENTIFIER NOT NULL REFERENCES mj_users(id),
     file_name      NVARCHAR(255)    NOT NULL,
     file_size      BIGINT           NOT NULL,
     mime_type      NVARCHAR(100)    NOT NULL,
@@ -15,4 +15,4 @@ BEGIN
 END;
 
 -- down
--- DROP TABLE IF EXISTS attachments;
+-- DROP TABLE IF EXISTS mj_attachments;

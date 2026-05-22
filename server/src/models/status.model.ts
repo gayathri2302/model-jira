@@ -8,7 +8,7 @@ export async function listStatuses(projectId: string): Promise<StatusDto[]> {
     .input('projectId', sql.UniqueIdentifier, projectId)
     .query<StatusDto>(`
       SELECT id, project_id, name, color, position, category
-      FROM statuses WHERE project_id = @projectId ORDER BY position
+      FROM mj_statuses WHERE project_id = @projectId ORDER BY position
     `);
   return res.recordset;
 }
@@ -29,7 +29,7 @@ export async function createStatus(
     .input('position', sql.Int, position)
     .input('category', sql.NVarChar, category)
     .query<StatusDto>(`
-      INSERT INTO statuses (project_id, name, color, position, category)
+      INSERT INTO mj_statuses (project_id, name, color, position, category)
       OUTPUT INSERTED.*
       VALUES (@projectId, @name, @color, @position, @category)
     `);
@@ -41,5 +41,5 @@ export async function deleteStatus(id: string): Promise<void> {
   await pool
     .request()
     .input('id', sql.UniqueIdentifier, id)
-    .query('DELETE FROM statuses WHERE id = @id');
+    .query('DELETE FROM mj_statuses WHERE id = @id');
 }

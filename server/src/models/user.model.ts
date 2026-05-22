@@ -16,7 +16,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
   const res = await pool
     .request()
     .input('email', sql.NVarChar, email)
-    .query<UserRow>('SELECT * FROM users WHERE email = @email AND deleted_at IS NULL');
+    .query<UserRow>('SELECT * FROM mj_users WHERE email = @email AND deleted_at IS NULL');
   return res.recordset[0] ?? null;
 }
 
@@ -25,7 +25,7 @@ export async function findUserById(id: string): Promise<UserRow | null> {
   const res = await pool
     .request()
     .input('id', sql.UniqueIdentifier, id)
-    .query<UserRow>('SELECT * FROM users WHERE id = @id AND deleted_at IS NULL');
+    .query<UserRow>('SELECT * FROM mj_users WHERE id = @id AND deleted_at IS NULL');
   return res.recordset[0] ?? null;
 }
 
@@ -43,7 +43,7 @@ export async function createUser(
     .input('hash', sql.NVarChar, passwordHash)
     .input('role', sql.NVarChar, role)
     .query<UserDto>(`
-      INSERT INTO users (name, email, password_hash, role)
+      INSERT INTO mj_users (name, email, password_hash, role)
       OUTPUT INSERTED.id, INSERTED.name, INSERTED.email, INSERTED.role,
              INSERTED.avatar_url, INSERTED.created_at
       VALUES (@name, @email, @hash, @role)
@@ -57,7 +57,7 @@ export async function listUsers(): Promise<UserDto[]> {
     .request()
     .query<UserDto>(`
       SELECT id, name, email, role, avatar_url, created_at
-      FROM users WHERE deleted_at IS NULL ORDER BY name
+      FROM mj_users WHERE deleted_at IS NULL ORDER BY name
     `);
   return res.recordset;
 }
@@ -68,5 +68,5 @@ export async function updateUserAvatar(id: string, avatarUrl: string): Promise<v
     .request()
     .input('id', sql.UniqueIdentifier, id)
     .input('url', sql.NVarChar, avatarUrl)
-    .query('UPDATE users SET avatar_url = @url, updated_at = GETUTCDATE() WHERE id = @id');
+    .query('UPDATE mj_users SET avatar_url = @url, updated_at = GETUTCDATE() WHERE id = @id');
 }

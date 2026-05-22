@@ -1,7 +1,7 @@
 -- up
-IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'users')
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'mj_users')
 BEGIN
-  CREATE TABLE users (
+  CREATE TABLE mj_users (
     id            UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
     name          NVARCHAR(120)    NOT NULL,
     email         NVARCHAR(255)    NOT NULL,
@@ -11,9 +11,9 @@ BEGIN
     created_at    DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
     updated_at    DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
     deleted_at    DATETIME2        NULL,
-    CONSTRAINT UQ_users_email UNIQUE (email)
+    CONSTRAINT UQ_mj_users_email UNIQUE (email)
   );
 END;
 
 -- down
--- DROP TABLE IF EXISTS users;
+-- DROP TABLE IF EXISTS mj_users;

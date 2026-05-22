@@ -5,20 +5,36 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: path.resolve(__dirname, '../server/.env') });
 
-const config: sql.config = {
-  server: process.env.DB_HOST!,
-  port: parseInt(process.env.DB_PORT ?? '1433', 10),
-  database: process.env.DB_NAME!,
-  user: process.env.DB_USER!,
-  password: process.env.DB_PASSWORD!,
-  options: {
-    encrypt: process.env.DB_ENCRYPT === 'true',
-    trustServerCertificate: process.env.DB_TRUST_SERVER_CERT !== 'false',
-  },
-};
+function parseConnectionUrl(url: string): sql.config {
+  const withoutScheme = url.replace(/^sqlserver:\/\//, '');
+  const [hostPort, ...paramParts] = withoutScheme.split(';');
+  const [server, portStr] = hostPort.split(':');
+  const params: Record<string, string> = {};
+  for (const part of paramParts) {
+    const eq = part.indexOf('=');
+    if (eq !== -1) params[part.slice(0, eq).toLowerCase()] = part.slice(eq + 1);
+  }
+  return {
+    server,
+    port: portStr ? parseInt(portStr, 10) : 1433,
+    database: params['database'],
+    user: params['user'],
+    password: params['password'],
+    options: {
+      encrypt: params['encrypt'] !== 'false',
+      trustServerCertificate: params['trustservercertificate'] === 'true',
+    },
+  };
+}
 
 async function run() {
-  const pool = await sql.connect(config);
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error('DATABASE_URL not set in server/.env');
+    process.exit(1);
+  }
+
+  const pool = await sql.connect(parseConnectionUrl(dbUrl));
   const dir = path.join(__dirname, 'migrations');
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.sql')).sort();
 

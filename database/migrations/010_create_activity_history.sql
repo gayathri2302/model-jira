@@ -1,10 +1,10 @@
 -- up
-IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'activity_history')
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'mj_activity_history')
 BEGIN
-  CREATE TABLE activity_history (
+  CREATE TABLE mj_activity_history (
     id         UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-    ticket_id  UNIQUEIDENTIFIER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    user_id    UNIQUEIDENTIFIER NOT NULL REFERENCES users(id),
+    ticket_id  UNIQUEIDENTIFIER NOT NULL REFERENCES mj_tickets(id) ON DELETE CASCADE,
+    user_id    UNIQUEIDENTIFIER NOT NULL REFERENCES mj_users(id),
     action     NVARCHAR(50)     NOT NULL,
     field_name NVARCHAR(80)     NULL,
     old_value  NVARCHAR(MAX)    NULL,
@@ -12,8 +12,8 @@ BEGIN
     created_at DATETIME2        NOT NULL DEFAULT GETUTCDATE()
   );
 
-  CREATE INDEX IX_activity_ticket_id ON activity_history(ticket_id);
+  CREATE INDEX IX_mj_activity_ticket_id ON mj_activity_history(ticket_id);
 END;
 
 -- down
--- DROP TABLE IF EXISTS activity_history;
+-- DROP TABLE IF EXISTS mj_activity_history;

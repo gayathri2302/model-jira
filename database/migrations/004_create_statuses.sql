@@ -1,9 +1,9 @@
 -- up
-IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'statuses')
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'mj_statuses')
 BEGIN
-  CREATE TABLE statuses (
+  CREATE TABLE mj_statuses (
     id         UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
-    project_id UNIQUEIDENTIFIER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    project_id UNIQUEIDENTIFIER NOT NULL REFERENCES mj_projects(id) ON DELETE CASCADE,
     name       NVARCHAR(80)     NOT NULL,
     color      NVARCHAR(7)      NOT NULL DEFAULT '#DFE1E6',
     position   INT              NOT NULL DEFAULT 0,
@@ -13,4 +13,4 @@ BEGIN
 END;
 
 -- down
--- DROP TABLE IF EXISTS statuses;
+-- DROP TABLE IF EXISTS mj_statuses;

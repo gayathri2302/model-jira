@@ -9,8 +9,8 @@ export async function listWorkLogs(ticketId: string): Promise<WorkLogDto[]> {
     .query<WorkLogDto>(`
       SELECT w.id, w.ticket_id, w.user_id, u.name AS user_name,
              w.minutes_logged, w.log_date, w.note, w.created_at
-      FROM work_logs w
-      JOIN users u ON u.id = w.user_id
+      FROM mj_work_logs w
+      JOIN mj_users u ON u.id = w.user_id
       WHERE w.ticket_id = @ticketId
       ORDER BY w.log_date DESC, w.created_at DESC
     `);
@@ -33,7 +33,7 @@ export async function createWorkLog(data: {
     .input('logDate', sql.Date, data.logDate)
     .input('note', sql.NVarChar, data.note)
     .query<{ id: string }>(`
-      INSERT INTO work_logs (ticket_id, user_id, minutes_logged, log_date, note)
+      INSERT INTO mj_work_logs (ticket_id, user_id, minutes_logged, log_date, note)
       OUTPUT INSERTED.id
       VALUES (@ticketId, @userId, @minutes, @logDate, @note)
     `);
