@@ -4,6 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { env } from './config/env.config';
 import { errorMiddleware } from './middleware/error.middleware';
+import { camelCaseResponse } from './middleware/camelCase.middleware';
 
 // Route imports (populated in Phase 4)
 import authRouter from './routes/auth.router';
@@ -23,6 +24,7 @@ app.use(helmet());
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(camelCaseResponse);
 
 if (env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));

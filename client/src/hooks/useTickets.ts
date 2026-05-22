@@ -27,7 +27,7 @@ export function useCreateTicket(projectId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: createTicket,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tickets', projectId] }),
+    onSuccess: () => qc.refetchQueries({ queryKey: ['tickets', projectId] }),
   });
 }
 
@@ -37,7 +37,7 @@ export function useUpdateTicket(projectId: string) {
     mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updateTicket>[1] }) =>
       updateTicket(id, data),
     onSuccess: (updated) => {
-      qc.invalidateQueries({ queryKey: ['tickets', projectId] });
+      qc.refetchQueries({ queryKey: ['tickets', projectId] });
       if (updated) qc.setQueryData(['ticket', updated.id], updated);
     },
   });
