@@ -10,8 +10,8 @@ const TICKET_SELECT = `
     t.reporter_id, r.name AS reporter_name,
     t.story_points, t.due_date, t.created_at, t.updated_at
   FROM mj_tickets t
-  JOIN statuses s ON s.id = t.status_id
-  LEFT JOIN epics e ON e.id = t.epic_id
+  JOIN mj_statuses s ON s.id = t.status_id
+  LEFT JOIN mj_epics e ON e.id = t.epic_id
   LEFT JOIN mj_users a ON a.id = t.assignee_id
   JOIN mj_users r ON r.id = t.reporter_id
 `;
