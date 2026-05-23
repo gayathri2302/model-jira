@@ -100,6 +100,8 @@ export interface TicketDto {
   reporterName: string;
   storyPoints: number | null;
   dueDate: string | null;
+  sprintId: string | null;
+  sprintName: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -108,12 +110,28 @@ export interface TicketDto {
 export interface CommentDto {
   id: string;
   ticketId: string;
+  parentId: string | null;
   authorId: string;
   authorName: string;
   authorAvatarUrl: string | null;
   body: string;
   createdAt: string;
   updatedAt: string;
+  replies?: CommentDto[];
+  attachments?: CommentAttachmentDto[];
+}
+
+export interface CommentAttachmentDto {
+  id: string;
+  commentId: string;
+  uploadedById: string;
+  uploaderName: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  blobUrl: string;
+  blobName: string;
+  createdAt: string;
 }
 
 // Attachments
@@ -126,6 +144,7 @@ export interface AttachmentDto {
   fileSize: number;
   mimeType: string;
   blobUrl: string;
+  blobName: string;
   createdAt: string;
 }
 
@@ -139,6 +158,23 @@ export interface WorkLogDto {
   logDate: string;
   note: string | null;
   createdAt: string;
+}
+
+// Sprints
+export type SprintStatus = 'planning' | 'active' | 'completed';
+
+export interface SprintDto {
+  id: string;
+  projectId: string;
+  name: string;
+  goal: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: SprintStatus;
+  createdBy: string;
+  createdAt: string;
+  ticketCount?: number;
+  completedCount?: number;
 }
 
 // Activity

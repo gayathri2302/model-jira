@@ -9,6 +9,9 @@ import ProjectBacklogPage from '@/pages/ProjectBacklogPage';
 import TicketDetailPage from '@/pages/TicketDetailPage';
 import UsersPage from '@/pages/UsersPage';
 import AppLayout from '@/components/shared/AppLayout';
+import EpicDetailPage from '@/pages/EpicDetailPage';
+import TimeReportPage from '@/pages/TimeReportPage';
+import ProjectOverviewPage from '@/pages/ProjectOverviewPage';
 
 export default function App() {
   const { token } = useAuthStore();
@@ -30,6 +33,9 @@ export default function App() {
         <Route path="projects/:projectId/board" element={<ProjectBoardPage />} />
         <Route path="projects/:projectId/backlog" element={<ProjectBacklogPage />} />
         <Route path="projects/:projectId/tickets/:ticketId" element={<TicketDetailPage />} />
+        <Route path="projects/:projectId/epics/:epicId" element={<EpicDetailPage />} />
+        <Route path="projects/:projectId/time-report" element={<TimeReportPage />} />
+        <Route path="projects/:projectId/overview" element={<ProjectOverviewPage />} />
         <Route path="users" element={<UsersPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

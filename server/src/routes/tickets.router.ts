@@ -38,7 +38,9 @@ const updateTicketSchema = z.object({
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   statusId: z.string().uuid().optional(),
   epicId: z.string().uuid().optional().nullable(),
+  sprintId: z.string().uuid().optional().nullable(),
   assigneeId: z.string().uuid().optional().nullable(),
+  reporterId: z.string().uuid().optional(),
   storyPoints: z.number().int().min(1).max(100).optional().nullable(),
   dueDate: z.string().optional().nullable(),
 });
@@ -100,16 +102,35 @@ router.patch(
     const fields = req.body as z.infer<typeof updateTicketSchema>;
     const updated = await updateTicket(req.params.id, fields);
 
-    // log status change
-    if (fields.statusId && fields.statusId !== existing.statusId) {
-      await logActivity({
-        ticketId: req.params.id,
-        userId: req.user!.sub,
-        action: 'updated',
-        fieldName: 'status',
-        oldValue: existing.statusName,
-        newValue: updated?.statusName ?? null,
-      });
+    // Raw DB rows are snake_case — access via cast before camelCase middleware runs
+    type Row = Record<string, unknown>;
+    const e = existing as unknown as Row;
+    const u = (updated ?? {}) as unknown as Row;
+    const str = (v: unknown) => (v != null ? String(v) : null);
+
+    const fieldLabels: Record<string, { label: string; oldVal: string | null; newVal: string | null }> = {
+      statusId:    { label: 'status',      oldVal: str(e['status_name']),   newVal: str(u['status_name']) },
+      priority:    { label: 'priority',    oldVal: str(e['priority']),      newVal: str(u['priority']) },
+      type:        { label: 'type',        oldVal: str(e['type']),          newVal: str(u['type']) },
+      assigneeId:  { label: 'assignee',    oldVal: str(e['assignee_name']) ?? 'Unassigned', newVal: str(u['assignee_name']) ?? 'Unassigned' },
+      reporterId:  { label: 'reporter',    oldVal: str(e['reporter_name']), newVal: str(u['reporter_name']) },
+      title:       { label: 'title',       oldVal: str(e['title']),         newVal: str(u['title']) },
+      description: { label: 'description', oldVal: str(e['description']),   newVal: str(u['description']) },
+      storyPoints: { label: 'story points', oldVal: str(e['story_points']),  newVal: str(u['story_points']) },
+      dueDate:     { label: 'due date',    oldVal: str(e['due_date']),      newVal: str(u['due_date']) },
+    };
+
+    for (const [key, meta] of Object.entries(fieldLabels)) {
+      if (key in fields && meta.oldVal !== meta.newVal) {
+        await logActivity({
+          ticketId: req.params.id,
+          userId: req.user!.sub,
+          action: 'updated',
+          fieldName: meta.label,
+          oldValue: meta.oldVal,
+          newValue: meta.newVal,
+        });
+      }
     }
 
     res.json({ success: true, data: updated });

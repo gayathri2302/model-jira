@@ -6,8 +6,8 @@ export async function getComments(ticketId: string): Promise<CommentDto[]> {
   return res.data.data;
 }
 
-export async function createComment(ticketId: string, body: string): Promise<CommentDto> {
-  const res = await api.post<{ data: CommentDto }>('/comments', { ticketId, body });
+export async function createComment(ticketId: string, body: string, parentId?: string | null): Promise<CommentDto> {
+  const res = await api.post<{ data: CommentDto }>('/comments', { ticketId, body, ...(parentId ? { parentId } : {}) });
   return res.data.data;
 }
 

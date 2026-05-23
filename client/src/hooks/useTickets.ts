@@ -38,7 +38,10 @@ export function useUpdateTicket(projectId: string) {
       updateTicket(id, data),
     onSuccess: (updated) => {
       qc.refetchQueries({ queryKey: ['tickets', projectId] });
-      if (updated) qc.setQueryData(['ticket', updated.id], updated);
+      if (updated) {
+        qc.setQueryData(['ticket', updated.id], updated);
+        qc.invalidateQueries({ queryKey: ['activity', updated.id] });
+      }
     },
   });
 }

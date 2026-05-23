@@ -6,6 +6,7 @@ function toCamel(s: string): string {
 
 function transformKeys(obj: unknown): unknown {
   if (Array.isArray(obj)) return obj.map(transformKeys);
+  if (obj instanceof Date) return obj.toISOString();
   if (obj !== null && typeof obj === 'object') {
     return Object.fromEntries(
       Object.entries(obj as Record<string, unknown>).map(([k, v]) => [

@@ -12,7 +12,8 @@ export function useComments(ticketId: string) {
 export function useCreateComment(ticketId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: string) => createComment(ticketId, body),
+    mutationFn: ({ body, parentId }: { body: string; parentId?: string | null }) =>
+      createComment(ticketId, body, parentId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['comments', ticketId] }),
   });
 }

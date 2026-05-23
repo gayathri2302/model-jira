@@ -17,6 +17,7 @@ import commentsRouter from './routes/comments.router';
 import attachmentsRouter from './routes/attachments.router';
 import workLogsRouter from './routes/workLogs.router';
 import activityRouter from './routes/activity.router';
+import sprintsRouter from './routes/sprints.router';
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use('/api/comments', commentsRouter);
 app.use('/api/attachments', attachmentsRouter);
 app.use('/api/work-logs', workLogsRouter);
 app.use('/api/activity', activityRouter);
+app.use('/api/sprints', sprintsRouter);
 
 app.use(errorMiddleware);
 

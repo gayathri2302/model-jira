@@ -37,6 +37,7 @@ export async function updateTicket(
     statusId: string;
     epicId: string | null;
     assigneeId: string | null;
+    reporterId: string;
     storyPoints: number | null;
     dueDate: string | null;
   }>,

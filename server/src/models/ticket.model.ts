@@ -8,12 +8,13 @@ const TICKET_SELECT = `
     t.epic_id, e.title AS epic_title,
     t.assignee_id, a.name AS assignee_name,
     t.reporter_id, r.name AS reporter_name,
-    t.story_points, t.due_date, t.created_at, t.updated_at
+    t.story_points, t.due_date, t.sprint_id, sp.name AS sprint_name, t.created_at, t.updated_at
   FROM mj_tickets t
   JOIN mj_statuses s ON s.id = t.status_id
   LEFT JOIN mj_epics e ON e.id = t.epic_id
   LEFT JOIN mj_users a ON a.id = t.assignee_id
   JOIN mj_users r ON r.id = t.reporter_id
+  LEFT JOIN mj_sprints sp ON sp.id = t.sprint_id
 `;
 
 export async function listTicketsByProject(projectId: string): Promise<TicketDto[]> {
@@ -103,6 +104,7 @@ export async function updateTicket(
     statusId: string;
     epicId: string | null;
     assigneeId: string | null;
+    reporterId: string;
     storyPoints: number | null;
     dueDate: string | null;
   }>,
@@ -132,12 +134,21 @@ export async function updateTicket(
     setClauses.push('status_id = @statusId');
   }
   if (fields.epicId !== undefined) {
-    req.input('epicId', sql.UniqueIdentifier, fields.epicId);
+    req.input('epicId', fields.epicId ? sql.UniqueIdentifier : sql.NVarChar, fields.epicId);
     setClauses.push('epic_id = @epicId');
+  }
+  if ((fields as Record<string, unknown>).sprintId !== undefined) {
+    const sid = (fields as Record<string, unknown>).sprintId as string | null;
+    req.input('sprintId', sid ? sql.UniqueIdentifier : sql.NVarChar, sid);
+    setClauses.push('sprint_id = @sprintId');
   }
   if (fields.assigneeId !== undefined) {
     req.input('assigneeId', sql.UniqueIdentifier, fields.assigneeId);
     setClauses.push('assignee_id = @assigneeId');
+  }
+  if (fields.reporterId !== undefined) {
+    req.input('reporterId', sql.UniqueIdentifier, fields.reporterId);
+    setClauses.push('reporter_id = @reporterId');
   }
   if (fields.storyPoints !== undefined) {
     req.input('storyPoints', sql.Int, fields.storyPoints);

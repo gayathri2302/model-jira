@@ -8,7 +8,7 @@ export async function listAttachments(ticketId: string): Promise<AttachmentDto[]
     .input('ticketId', sql.UniqueIdentifier, ticketId)
     .query<AttachmentDto>(`
       SELECT a.id, a.ticket_id, a.uploaded_by_id, u.name AS uploader_name,
-             a.file_name, a.file_size, a.mime_type, a.blob_url, a.created_at
+             a.file_name, a.file_size, a.mime_type, a.blob_url, a.blob_name, a.created_at
       FROM mj_attachments a
       JOIN mj_users u ON u.id = a.uploaded_by_id
       WHERE a.ticket_id = @ticketId
@@ -46,13 +46,13 @@ export async function createAttachment(data: {
   return all.find((a) => a.id === id) as AttachmentDto;
 }
 
-export async function findAttachmentById(id: string): Promise<{ id: string; blob_name: string; ticket_id: string } | null> {
+export async function findAttachmentById(id: string): Promise<{ id: string; blob_name: string; ticket_id: string; file_name: string } | null> {
   const pool = await getPool();
   const res = await pool
     .request()
     .input('id', sql.UniqueIdentifier, id)
-    .query<{ id: string; blob_name: string; ticket_id: string }>(
-      'SELECT id, blob_name, ticket_id FROM mj_attachments WHERE id = @id',
+    .query<{ id: string; blob_name: string; ticket_id: string; file_name: string }>(
+      'SELECT id, blob_name, ticket_id, file_name FROM mj_attachments WHERE id = @id',
     );
   return res.recordset[0] ?? null;
 }
