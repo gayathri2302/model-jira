@@ -297,6 +297,32 @@ async function main() {
   const allUsers = await pool.request().query('SELECT id, name FROM mj_users WHERE deleted_at IS NULL');
   for (const u of allUsers.recordset) userMap[u.name] = u.id;
 
+  // 7.5 Create an active sprint (or reuse existing active sprint)
+  console.log('\nStep 7.5: Setting up active sprint…');
+  let sprintId;
+  const existingSprint = await pool.request()
+    .input('projectId', sql.UniqueIdentifier, projectId)
+    .query(`SELECT TOP 1 id FROM mj_sprints WHERE project_id = @projectId AND status = 'active'`);
+  if (existingSprint.recordset.length) {
+    sprintId = existingSprint.recordset[0].id;
+    console.log(`  Reusing active sprint: ${sprintId}`);
+  } else {
+    sprintId = uuid();
+    const today = new Date().toISOString().slice(0, 10);
+    const endDate = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+    await pool.request()
+      .input('id',        sql.UniqueIdentifier, sprintId)
+      .input('projectId', sql.UniqueIdentifier, projectId)
+      .input('name',      sql.NVarChar, `${config.projectKey} Sprint 1`)
+      .input('goal',      sql.NVarChar, 'QA Defect resolution')
+      .input('startDate', sql.Date, today)
+      .input('endDate',   sql.Date, endDate)
+      .input('createdBy', sql.UniqueIdentifier, ownerId)
+      .query(`INSERT INTO mj_sprints (id, project_id, name, goal, start_date, end_date, status, created_by)
+              VALUES (@id, @projectId, @name, @goal, @startDate, @endDate, 'active', @createdBy)`);
+    console.log(`  Created active sprint: ${config.projectKey} Sprint 1 (${today} → ${endDate})`);
+  }
+
   // 8. Create tickets
   console.log('\nStep 8: Creating tickets…');
   let created = 0, skipped = 0;
@@ -327,10 +353,11 @@ async function main() {
       .input('epicId',      epicId ? sql.UniqueIdentifier : sql.NVarChar, epicId)
       .input('assigneeId',  assigneeId ? sql.UniqueIdentifier : sql.NVarChar, assigneeId)
       .input('reporterId',  sql.UniqueIdentifier, reporterId)
+      .input('sprintId',    sql.UniqueIdentifier, sprintId)
       .query(`INSERT INTO mj_tickets
-                (id, ticket_number, project_id, title, description, type, priority, status_id, epic_id, assignee_id, reporter_id)
+                (id, ticket_number, project_id, title, description, type, priority, status_id, epic_id, assignee_id, reporter_id, sprint_id)
               VALUES
-                (@id, @ticketNum, @projectId, @title, @description, @type, @priority, @statusId, @epicId, @assigneeId, @reporterId)`);
+                (@id, @ticketNum, @projectId, @title, @description, @type, @priority, @statusId, @epicId, @assigneeId, @reporterId, @sprintId)`);
 
     console.log(`  Created: ${issue.key} — ${f.summary.slice(0, 60)}`);
     created++;
@@ -342,6 +369,7 @@ async function main() {
 ═══ Import Complete ═══
   Project:  ${config.projectName} (${config.projectKey})
   Epics:    ${Object.keys(epicIdMap).length}
+  Sprint:   ${config.projectKey} Sprint 1 (active)
   Tickets:  ${created} created, ${skipped} already existed
 ═══════════════════════
 `);
