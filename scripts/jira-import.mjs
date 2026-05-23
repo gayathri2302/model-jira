@@ -341,8 +341,9 @@ async function main() {
     const assigneeId = f.assignee ? (userMap[f.assignee.displayName] || null) : null;
     const reporterId = f.reporter ? (userMap[f.reporter.displayName] || ownerId) : ownerId;
 
+    const ticketId = uuid();
     await pool.request()
-      .input('id',          sql.UniqueIdentifier, uuid())
+      .input('id',          sql.UniqueIdentifier, ticketId)
       .input('ticketNum',   sql.NVarChar,         issue.key)
       .input('projectId',   sql.UniqueIdentifier, projectId)
       .input('title',       sql.NVarChar,         f.summary)
@@ -358,6 +359,15 @@ async function main() {
                 (id, ticket_number, project_id, title, description, type, priority, status_id, epic_id, assignee_id, reporter_id, sprint_id)
               VALUES
                 (@id, @ticketNum, @projectId, @title, @description, @type, @priority, @statusId, @epicId, @assigneeId, @reporterId, @sprintId)`);
+
+    // Add Jira URL as first comment
+    const jiraUrl = `${config.jiraUrl}/browse/${issue.key}`;
+    await pool.request()
+      .input('id',       sql.UniqueIdentifier, uuid())
+      .input('ticketId', sql.UniqueIdentifier, ticketId)
+      .input('authorId', sql.UniqueIdentifier, ownerId)
+      .input('body',     sql.NVarChar, `Jira ticket: ${jiraUrl}`)
+      .query(`INSERT INTO mj_comments (id, ticket_id, author_id, body) VALUES (@id, @ticketId, @authorId, @body)`);
 
     console.log(`  Created: ${issue.key} — ${f.summary.slice(0, 60)}`);
     created++;
