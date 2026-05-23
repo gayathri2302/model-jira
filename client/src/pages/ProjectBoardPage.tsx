@@ -170,7 +170,7 @@ export default function ProjectBoardPage() {
       <div className="flex-1 overflow-hidden p-6">
         <KanbanBoard
           statuses={statuses}
-          tickets={tickets}
+          tickets={activeSprint ? tickets.filter((t) => t.sprintId === activeSprint.id) : tickets.filter((t) => !t.sprintId)}
           onMoveTicket={handleMoveTicket}
           onTicketClick={handleTicketClick}
           groupByEpic={groupByEpic}

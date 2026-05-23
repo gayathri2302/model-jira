@@ -13,7 +13,7 @@ const TICKET_SELECT = `
   JOIN mj_statuses s ON s.id = t.status_id
   LEFT JOIN mj_epics e ON e.id = t.epic_id
   LEFT JOIN mj_users a ON a.id = t.assignee_id
-  JOIN mj_users r ON r.id = t.reporter_id
+  LEFT JOIN mj_users r ON r.id = t.reporter_id
   LEFT JOIN mj_sprints sp ON sp.id = t.sprint_id
 `;
 
